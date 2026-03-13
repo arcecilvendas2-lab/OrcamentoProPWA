@@ -411,9 +411,374 @@ input[type="number"].right{text-align:right}
   .form-grid.g3{grid-template-columns:1fr 1fr!important}
 }
 
+
+/* ════════════════════════════════════════════════════════
+   SPLASH V2 — LIQUID METAL / DOCUMENT FORGE
+════════════════════════════════════════════════════════ */
+#sp2{
+  position:fixed;inset:0;z-index:99999;
+  background:#080c14;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+#sp2.sp2-exit{
+  animation:sp2Exit .9s cubic-bezier(.76,0,.24,1) forwards;
+}
+@keyframes sp2Exit{
+  0%{opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+  100%{opacity:0;clip-path:polygon(0 0,100% 0,100% 0%,0 0%)}
+}
+
+/* Noise grain texture overlay */
+#sp2::before{
+  content:'';position:absolute;inset:0;z-index:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;opacity:.6;
+}
+
+/* Background deep gradient */
+#sp2-bg{
+  position:absolute;inset:0;z-index:1;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(15,35,80,.8) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(249,115,22,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(14,165,233,.05) 0%, transparent 60%),
+    #080c14;
+}
+
+/* Animated mesh lines */
+#sp2-mesh{
+  position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden;
+}
+.sp2-hline{
+  position:absolute;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.03) 30%,rgba(255,255,255,.06) 50%,rgba(255,255,255,.03) 70%,transparent);
+}
+.sp2-vline{
+  position:absolute;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.04) 30%,rgba(255,255,255,.07) 50%,rgba(255,255,255,.04) 70%,transparent);
+}
+
+/* Central stage */
+#sp2-stage{
+  position:relative;z-index:10;
+  display:flex;flex-direction:column;align-items:center;
+  gap:0;
+  width:min(540px,90vw);
+}
+
+/* Document shape behind logo */
+#sp2-doc{
+  position:relative;
+  width:140px;height:168px;
+  margin-bottom:40px;
+  animation:sp2DocIn .9s cubic-bezier(.34,1.3,.64,1) .1s both;
+}
+@keyframes sp2DocIn{
+  from{opacity:0;transform:translateY(30px) scale(.85);filter:blur(8px)}
+  to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}
+}
+#sp2-doc-shape{
+  position:absolute;inset:0;
+  background:linear-gradient(145deg,#0d1f52 0%,#0a1640 60%,#061030 100%);
+  border-radius:4px 16px 16px 16px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.07),
+    0 32px 64px rgba(0,0,0,.6),
+    0 0 40px rgba(249,115,22,.12),
+    inset 0 1px 0 rgba(255,255,255,.08);
+}
+/* Corner fold */
+#sp2-doc-shape::before{
+  content:'';position:absolute;top:0;left:0;
+  width:0;height:0;
+  border-style:solid;
+  border-width:0 28px 28px 0;
+  border-color:transparent rgba(249,115,22,.45) transparent transparent;
+  filter:drop-shadow(0 2px 4px rgba(249,115,22,.3));
+}
+#sp2-doc-shape::after{
+  content:'';position:absolute;top:0;left:0;
+  width:28px;height:28px;
+  background:linear-gradient(135deg,#080c14 50%,#0d1f52 50%);
+  border-radius:0 0 6px 0;
+}
+/* Orange accent bar */
+#sp2-doc-bar{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#f97316,#fb923c,#f97316);
+  border-radius:0 0 16px 16px;
+  animation:sp2BarGlow 2s ease infinite;
+}
+@keyframes sp2BarGlow{
+  0%,100%{box-shadow:0 0 8px rgba(249,115,22,.5)}
+  50%{box-shadow:0 0 20px rgba(249,115,22,.9),0 0 40px rgba(249,115,22,.3)}
+}
+/* Lines on document */
+.sp2-doc-line{
+  position:absolute;left:18px;right:18px;height:2px;
+  background:rgba(255,255,255,.07);border-radius:1px;
+}
+/* Logo inside doc */
+#sp2-logo-wrap{
+  position:absolute;
+  inset:0;display:flex;align-items:center;justify-content:center;
+  padding-top:10px;
+}
+#sp2-logo{
+  width:72%;height:72%;object-fit:contain;
+  filter:brightness(.55) saturate(.6) drop-shadow(0 4px 12px rgba(249,115,22,.2));
+}
+
+/* Scan line over document */
+#sp2-scan{
+  position:absolute;left:-4px;right:-4px;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(14,165,233,.9) 30%,rgba(255,255,255,.95) 50%,rgba(249,115,22,.85) 70%,transparent);
+  box-shadow:0 0 12px 2px rgba(14,165,233,.4);
+  pointer-events:none;
+  animation:sp2Scan 2.2s cubic-bezier(.4,0,.6,1) infinite .8s;
+  opacity:0;
+}
+@keyframes sp2Scan{
+  0%{top:0%;opacity:0}
+  5%{opacity:1}
+  92%{opacity:.5}
+  100%{top:100%;opacity:0}
+}
+
+/* Brand text block */
+#sp2-brand{
+  text-align:center;
+  overflow:hidden;
+  margin-bottom:6px;
+}
+#sp2-brand-orcamento{
+  display:block;
+  font-family:'Sora',sans-serif;
+  font-size:clamp(2rem,6vw,3.2rem);
+  font-weight:900;
+  letter-spacing:-.03em;
+  line-height:1;
+  color:#fff;
+  animation:sp2WordIn .7s cubic-bezier(.16,1,.3,1) .5s both;
+}
+@keyframes sp2WordIn{
+  from{opacity:0;transform:translateY(100%);filter:blur(4px)}
+  to{opacity:1;transform:translateY(0);filter:blur(0)}
+}
+#sp2-brand-pro{
+  display:inline-block;
+  font-family:'Sora',sans-serif;
+  font-size:clamp(2rem,6vw,3.2rem);
+  font-weight:900;
+  letter-spacing:-.03em;
+  line-height:1;
+  background:linear-gradient(135deg,#f97316 0%,#fb923c 40%,#fbbf24 70%,#f97316 100%);
+  background-size:200% 200%;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:sp2WordIn .7s cubic-bezier(.16,1,.3,1) .65s both,
+            sp2GoldShift 3s ease infinite 1s;
+}
+@keyframes sp2GoldShift{
+  0%,100%{background-position:0% 50%}50%{background-position:100% 50%}
+}
+#sp2-v{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.75rem;font-weight:700;
+  color:rgba(249,115,22,.6);
+  letter-spacing:.15em;
+  vertical-align:super;
+  margin-left:4px;
+  animation:sp2FU .5s ease .9s both;
+}
+
+/* Tagline */
+#sp2-tag{
+  font-family:'Sora',sans-serif;
+  font-size:.78rem;font-weight:400;
+  color:rgba(255,255,255,.28);
+  letter-spacing:.18em;text-transform:uppercase;
+  text-align:center;
+  margin-top:8px;
+  animation:sp2FU .5s ease 1s both;
+}
+
+/* Divider */
+#sp2-div{
+  width:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(249,115,22,.5),rgba(14,165,233,.5),transparent);
+  margin:20px auto;
+  animation:sp2DivGrow .8s ease 1.1s both;
+}
+@keyframes sp2DivGrow{from{width:0;opacity:0}to{width:200px;opacity:1}}
+
+/* Progress zone */
+#sp2-progress{
+  width:min(280px,80vw);
+  animation:sp2FU .5s ease 1.15s both;
+}
+#sp2-prog-top{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:8px;
+}
+#sp2-prog-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;color:rgba(255,255,255,.22);
+  letter-spacing:.12em;text-transform:uppercase;
+}
+#sp2-pct{
+  font-family:'JetBrains Mono',monospace;
+  font-size:.65rem;font-weight:700;color:#f97316;
+}
+#sp2-track{
+  height:3px;background:rgba(255,255,255,.05);
+  border-radius:99px;overflow:visible;position:relative;
+}
+#sp2-fill{
+  height:100%;width:0%;border-radius:99px;
+  background:linear-gradient(90deg,#1e40af,#f97316,#fbbf24);
+  background-size:300% 100%;
+  animation:sp2FillShift 2s linear infinite;
+  position:relative;transition:width .04s linear;
+}
+#sp2-fill::after{
+  content:'';position:absolute;right:-2px;top:-3px;
+  width:8px;height:8px;border-radius:50%;
+  background:#fbbf24;
+  box-shadow:0 0 10px 3px rgba(251,191,36,.6);
+}
+@keyframes sp2FillShift{0%{background-position:0%}100%{background-position:300%}}
+#sp2-msg{
+  margin-top:10px;text-align:center;
+  font-family:'JetBrains Mono',monospace;
+  font-size:.58rem;color:rgba(255,255,255,.2);
+  letter-spacing:.07em;min-height:13px;
+  transition:opacity .25s;
+}
+
+/* Corner markers */
+.sp2-corner{
+  position:absolute;width:18px;height:18px;z-index:11;
+}
+.sp2-corner.tl{top:16px;left:16px;border-top:1.5px solid rgba(14,165,233,.5);border-left:1.5px solid rgba(14,165,233,.5)}
+.sp2-corner.tr{top:16px;right:16px;border-top:1.5px solid rgba(249,115,22,.5);border-right:1.5px solid rgba(249,115,22,.5)}
+.sp2-corner.bl{bottom:16px;left:16px;border-bottom:1.5px solid rgba(249,115,22,.5);border-left:1.5px solid rgba(249,115,22,.5)}
+.sp2-corner.br{bottom:16px;right:16px;border-bottom:1.5px solid rgba(14,165,233,.5);border-right:1.5px solid rgba(14,165,233,.5)}
+
+/* Bottom info strip */
+#sp2-footer{
+  position:absolute;bottom:0;left:0;right:0;z-index:12;
+  padding:10px 20px calc(10px + env(safe-area-inset-bottom));
+  display:flex;justify-content:space-between;align-items:center;
+  border-top:1px solid rgba(255,255,255,.035);
+}
+#sp2-footer-l{font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(255,255,255,.12);letter-spacing:.1em;text-transform:uppercase}
+#sp2-footer-r{font-family:'JetBrains Mono',monospace;font-size:.48rem;color:rgba(255,255,255,.12);letter-spacing:.06em}
+#sp2-dots{display:flex;gap:5px;align-items:center}
+.sp2-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.1);transition:all .3s}
+.sp2-dot.on{background:#f97316;box-shadow:0 0 8px rgba(249,115,22,.6)}
+
+/* Floating chips */
+.sp2-chip{
+  position:absolute;z-index:11;pointer-events:none;
+  border-radius:4px;padding:3px 9px;
+  font-family:'JetBrains Mono',monospace;font-size:.5rem;
+  white-space:nowrap;backdrop-filter:blur(2px);
+  animation:sp2ChipFloat linear forwards;
+}
+@keyframes sp2ChipFloat{
+  0%{opacity:0;transform:translateY(0)}8%{opacity:1}75%{opacity:.4}100%{opacity:0;transform:translateY(-60px)}
+}
+
+@keyframes sp2FU{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* App root hidden until splash exits */
+#app-root.sp2-hidden{opacity:0;transition:opacity .8s ease}
+#app-root.sp2-visible{opacity:1}
+
 </style>
 </head>
 <body>
+<!-- ═══════════════ SPLASH V2 ═══════════════ -->
+<div id="sp2">
+  <div id="sp2-bg"></div>
+
+  <!-- Grid mesh lines -->
+  <div id="sp2-mesh">
+    <div class="sp2-hline" style="top:18%"></div>
+    <div class="sp2-hline" style="top:35%"></div>
+    <div class="sp2-hline" style="top:62%"></div>
+    <div class="sp2-hline" style="top:80%"></div>
+    <div class="sp2-vline" style="left:12%"></div>
+    <div class="sp2-vline" style="left:30%"></div>
+    <div class="sp2-vline" style="left:50%"></div>
+    <div class="sp2-vline" style="left:70%"></div>
+    <div class="sp2-vline" style="left:88%"></div>
+  </div>
+
+  <!-- Corner markers -->
+  <div class="sp2-corner tl"></div>
+  <div class="sp2-corner tr"></div>
+  <div class="sp2-corner bl"></div>
+  <div class="sp2-corner br"></div>
+
+  <!-- Central stage -->
+  <div id="sp2-stage">
+
+    <!-- Document shape with logo -->
+    <div id="sp2-doc">
+      <div id="sp2-doc-shape">
+        <div class="sp2-doc-line" style="top:42px"></div>
+        <div class="sp2-doc-line" style="top:56px"></div>
+        <div class="sp2-doc-line" style="top:70px;right:36px"></div>
+        <div class="sp2-doc-line" style="top:84px"></div>
+        <div class="sp2-doc-line" style="top:98px;right:48px"></div>
+        <div class="sp2-doc-line" style="top:112px"></div>
+        <div class="sp2-doc-line" style="top:126px;right:30px"></div>
+        <div id="sp2-doc-bar"></div>
+      </div>
+      <div id="sp2-logo-wrap">
+        <img id="sp2-logo" src="https://i.ibb.co/VWBw2qJZ/logo1.png" alt=""/>
+      </div>
+      <div id="sp2-scan"></div>
+    </div>
+
+    <!-- Brand -->
+    <div id="sp2-brand">
+      <span id="sp2-brand-orcamento">Orçamento</span>
+      <span id="sp2-brand-pro">Pro<span id="sp2-v">V6</span></span>
+    </div>
+
+    <div id="sp2-tag">Sistema de Gestão Comercial</div>
+    <div id="sp2-div"></div>
+
+    <!-- Progress -->
+    <div id="sp2-progress">
+      <div id="sp2-prog-top">
+        <span id="sp2-prog-label">Inicializando</span>
+        <span id="sp2-pct">0%</span>
+      </div>
+      <div id="sp2-track"><div id="sp2-fill"></div></div>
+      <div id="sp2-msg">Verificando módulos...</div>
+    </div>
+
+  </div><!-- /stage -->
+
+  <!-- Bottom footer -->
+  <div id="sp2-footer">
+    <span id="sp2-footer-l">© 2026 Arcecil Vendas</span>
+    <div id="sp2-dots">
+      <div class="sp2-dot on" id="sp2-d0"></div>
+      <div class="sp2-dot" id="sp2-d1"></div>
+      <div class="sp2-dot" id="sp2-d2"></div>
+      <div class="sp2-dot" id="sp2-d3"></div>
+    </div>
+    <span id="sp2-footer-r" id="sp2-clock">--:--:--</span>
+  </div>
+
+</div><!-- /sp2 -->
+
 <!-- ═══ MOBILE BOTTOM NAV ═══ -->
 <nav id="mobile-nav">
   <div id="mobile-nav-inner">
@@ -466,7 +831,7 @@ input[type="number"].right{text-align:right}
     <div class="d-icon" style="background:#f1f5f9;color:var(--muted)"><i class="fa fa-cog"></i></div>Configurações
   </div>
 </div>
-<div id="app-root">
+<div id="app-root" class="sp2-hidden">
 <!-- LOADING OVERLAY -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-box">
@@ -2793,6 +3158,116 @@ function setupDropZone(){
 
 
 
+
+
+// ═══════════════════════════════════════════════════════
+//  SPLASH V2 — LIQUID METAL DOCUMENT FORGE
+// ═══════════════════════════════════════════════════════
+;(function(){
+  if(!document.getElementById('sp2')) return;
+  const G = id => document.getElementById(id);
+
+  // ── Clock ──
+  const footerR = G('sp2-footer-r');
+  (function clk(){
+    if(!G('sp2')) return;
+    if(footerR) footerR.textContent = new Date().toLocaleTimeString('pt-BR');
+    setTimeout(clk, 1000);
+  })();
+
+  // ── Floating chips ──
+  const chipTexts = [
+    'ORC-2026-0042','R$ 18.400,00','Aprovado ✓','PDF Gerado',
+    'Sync OK','API Ready','V6.0.0','CNPJ OK','Frete CIF',
+    '186 itens','Base Online','R$ 142.300,00','Novo orçamento'
+  ];
+  const sp2 = G('sp2');
+  function spawnChip(){
+    if(!sp2) return;
+    const el = document.createElement('div');
+    el.className = 'sp2-chip';
+    el.textContent = chipTexts[Math.floor(Math.random() * chipTexts.length)];
+    const dur = 5 + Math.random() * 4;
+    const isBlue = Math.random() > .5;
+    el.style.cssText =
+      'left:' + (3 + Math.random() * 88) + '%;' +
+      'top:' + (55 + Math.random() * 38) + '%;' +
+      'animation-duration:' + dur + 's;' +
+      'color:' + (isBlue ? 'rgba(14,165,233,.42)' : 'rgba(249,115,22,.45)') + ';' +
+      'background:' + (isBlue ? 'rgba(14,165,233,.05)' : 'rgba(249,115,22,.05)') + ';' +
+      'border:1px solid ' + (isBlue ? 'rgba(14,165,233,.15)' : 'rgba(249,115,22,.18)') + ';';
+    sp2.appendChild(el);
+    setTimeout(() => el.remove(), (dur + 2) * 1000);
+  }
+  let chipTimer = setInterval(spawnChip, 750);
+  for(let i = 0; i < 3; i++) setTimeout(spawnChip, i * 350);
+
+  // ── Progress ──
+  const msgs = [
+    'Verificando integridade...',
+    'Carregando configurações...',
+    'Conectando ao servidor...',
+    'Sincronizando catálogo...',
+    'Carregando orçamentos...',
+    'Preparando interface...',
+    'Sistema pronto! ✓'
+  ];
+  const fill   = G('sp2-fill');
+  const pctEl  = G('sp2-pct');
+  const msgEl  = G('sp2-msg');
+  const dots   = [G('sp2-d0'),G('sp2-d1'),G('sp2-d2'),G('sp2-d3')];
+  let pct = 0, msgIdx = 0, done = false;
+
+  const progTimer = setInterval(() => {
+    const spd = pct < 45 ? 3.6 : pct < 72 ? 2.1 : pct < 90 ? 1.1 : 3.0;
+    pct = Math.min(100, pct + Math.random() * spd + .8);
+    if(fill)  fill.style.width = pct + '%';
+    if(pctEl) pctEl.textContent = Math.floor(pct) + '%';
+
+    // Dots
+    const di = Math.min(3, Math.floor(pct / 25));
+    dots.forEach((d, i) => d && d.classList.toggle('on', i <= di));
+
+    // Messages
+    const thresh = msgIdx * (100 / msgs.length);
+    if(pct >= thresh && msgIdx < msgs.length){
+      if(msgEl) msgEl.style.opacity = '0';
+      const m = msgIdx++;
+      setTimeout(() => {
+        if(msgEl){ msgEl.textContent = msgs[m]; msgEl.style.opacity = '1'; }
+      }, 220);
+    }
+
+    if(pct >= 100 && !done){
+      done = true;
+      clearInterval(progTimer);
+      clearInterval(chipTimer);
+      if(pctEl) pctEl.textContent = '100%';
+
+      setTimeout(() => {
+        // Exit animation
+        const s = G('sp2');
+        if(s) s.classList.add('sp2-exit');
+
+        // Reveal app
+        setTimeout(() => {
+          const app = G('app-root');
+          if(app){
+            app.classList.remove('sp2-hidden');
+            app.classList.add('sp2-visible');
+          }
+        }, 350);
+
+        // Remove from DOM
+        setTimeout(() => {
+          const s2 = G('sp2');
+          if(s2) s2.remove();
+        }, 1100);
+      }, 480);
+    }
+  }, 48);
+
+})();
 
 
 document.addEventListener('DOMContentLoaded',()=>{
