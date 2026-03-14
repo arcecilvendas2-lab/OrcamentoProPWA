@@ -3011,6 +3011,42 @@ function brMapItem(r){
   };
 }
 
+// ── MAP ORÇAMENTO ─────────────────────────────────────
+function brMapOrcamento(r){
+  let itens=[];
+  try{ itens=JSON.parse(r.itens_json||'[]'); }catch(e){}
+  return {
+    id:             'br_'+r.id,
+    baserow_id:     r.id,
+    numero:         r.numero||'',
+    data:           r.data||'',
+    validade:       r.validade||'',
+    empresa_id:     r.empresa_id ? 'br_'+r.empresa_id : '',
+    cliente_id:     r.cliente_id ? 'br_'+r.cliente_id : '',
+    condicao:       r.condicoes_pagamento||r.condicao||'',
+    entrega:        r.prazo_entrega||r.entrega||'',
+    cond:           r.condicoes||r.cond||'',
+    observacoes:    r.observacoes||'',
+    itens:          itens,
+    sub:            parseFloat(r.subtotal)||0,
+    desconto:{
+      tipo:  r.desconto_tipo||'R$',
+      val:   parseFloat(r.desconto_valor_input)||0,
+      total: parseFloat(r.desconto_geral)||0
+    },
+    acrescimo:{
+      tipo:  r.acrescimo_tipo||'R$',
+      val:   parseFloat(r.acrescimo_valor_input)||0,
+      total: parseFloat(r.acrescimo_geral)||0
+    },
+    frete:          parseFloat(r.frete)||0,
+    total:          parseFloat(r.total)||0,
+    status:         r.status||'pendente',
+    criado_em:      r.data_criacao||r.criado_em||'',
+    atualizado_em:  r.ultima_atualizacao||''
+  };
+}
+
 // ── SYNC STATUS ────────────────────────────────────────
 let brSyncStatus='idle';
 function updateSyncBadge(){
@@ -3037,33 +3073,36 @@ async function sincronizarBaserow(){
   showLoading('Sincronizando com Baserow…');
   try {
     console.log('[Baserow] Buscando dados…', cfg);
-    const [empRows,cliRows,itemRows]=await Promise.all([
-      brFetchAll(cfg.emp), brFetchAll(cfg.cli), brFetchAll(cfg.itens)
+    const [empRows,cliRows,itemRows,orcRows]=await Promise.all([
+      brFetchAll(cfg.emp), brFetchAll(cfg.cli), brFetchAll(cfg.itens), brFetchAll(cfg.orc)
     ]);
-    console.log('[Baserow] Empresas:',empRows.length,'Clientes:',cliRows.length,'Itens:',itemRows.length);
-    console.log('[Baserow] empresa[0]:', JSON.stringify(empRows[0]));
-    console.log('[Baserow] cliente[0]:', JSON.stringify(cliRows[0]));
-    console.log('[Baserow] item[0]:',    JSON.stringify(itemRows[0]));
+    console.log('[Baserow] Empresas:',empRows.length,'Clientes:',cliRows.length,'Itens:',itemRows.length,'Orçamentos:',orcRows.length);
 
     // Mantém registros criados localmente (id sem prefixo br_), substitui os do Baserow
     const merge=(existing,newRows,mapFn)=>{
       const local=existing.filter(x=>!String(x.id).startsWith('br_'));
       return [...newRows.map(mapFn),...local];
     };
-    DB.empresas=merge(DB.empresas,empRows,brMapEmpresa);
-    DB.clientes=merge(DB.clientes,cliRows,brMapCliente);
-    DB.itens   =merge(DB.itens,   itemRows,brMapItem);
+    DB.empresas  = merge(DB.empresas,  empRows,  brMapEmpresa);
+    DB.clientes  = merge(DB.clientes,  cliRows,  brMapCliente);
+    DB.itens     = merge(DB.itens,     itemRows,  brMapItem);
+    DB.orcamentos= merge(DB.orcamentos,orcRows,  brMapOrcamento);
 
     // Atualiza TODOS os componentes visuais
     populateSelects();
     buildCatList();
-    renderClientes();
-    renderEmpresas();
-    renderCatalogo();
     updateKPIs();
+    // Re-renderiza página ativa com dados atualizados do Baserow
+    const activePage = document.querySelector('.page.active');
+    const pid = activePage ? activePage.id.replace('page-','') : 'dashboard';
+    if(pid==='dashboard')  renderDashboard();
+    if(pid==='historico')  renderHistorico();
+    if(pid==='clientes')   renderClientes();
+    if(pid==='empresas')   renderEmpresas();
+    if(pid==='catalogo')   renderCatalogo();
 
     brSyncStatus='ok'; updateSyncBadge();
-    showToast(`✅ Baserow: ${empRows.length} empresas · ${cliRows.length} clientes · ${itemRows.length} itens`,'success');
+    showToast(`✅ Baserow: ${orcRows.length} orçamentos · ${cliRows.length} clientes · ${empRows.length} empresas`,'success');
   } catch(e){
     console.error('[Baserow] Erro sync:',e);
     brSyncStatus='error'; updateSyncBadge();
@@ -3256,6 +3295,14 @@ function setupDropZone(){
             app.classList.remove('sp2-hidden');
             app.classList.add('sp2-visible');
           }
+          // Re-render dashboard now that elements have real dimensions
+          setTimeout(() => {
+            if(typeof renderDashboard === 'function') renderDashboard();
+            if(typeof updateKPIs === 'function') updateKPIs();
+            if(typeof renderHistorico === 'function'){
+              // pre-warm historico data in background
+            }
+          }, 120);
         }, 350);
 
         // Remove from DOM
